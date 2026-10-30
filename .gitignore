@@ -1,0 +1,11 @@
+# Simulation outputs
+build/
+*.vcd
+*.vvp
+*.fst
+
+# macOS
+.DS_Store
+
+# Local editor settings
+.vscode/
