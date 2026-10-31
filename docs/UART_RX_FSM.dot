@@ -1,0 +1,24 @@
+digraph UART_RX_FSM {
+  graph [rankdir=TB, bgcolor="white", pad="0.25", nodesep="0.8", ranksep="1.0", splines=true,
+         fontname="DejaVu Sans", fontsize=20,
+         label="UART RX · FSM приймача (8N1)", labelloc=t, labeljust=l];
+  node [shape=box, style="rounded,filled", fontname="DejaVu Sans", fontsize=13,
+        margin="0.20,0.17", color="#A9BDD2", penwidth=1.4, fillcolor="#F3F7FC", fontcolor="#17304B"];
+  edge [fontname="DejaVu Sans", fontsize=10.5, color="#526A83", fontcolor="#33485E", penwidth=1.55, arrowsize=0.8];
+
+  init [shape=point, width=0.12, color="#53728F", label=""];
+  IDLE  [label="IDLE\nочікування рівня 0", fillcolor="#E3F2F0", color="#269785"];
+  START [label="START\nперевірка середини\nстартового біта"];
+  DATA  [label="DATA\nвибірка 8 бітів\nу серединах інтервалів"];
+  STOP  [label="STOP\nперевірка стопового біта"];
+
+  init -> IDLE [label="reset"];
+  IDLE -> START [label="rx_sync=0"];
+  START -> DATA [label="217 тактів\nrx_sync=0"];
+  START -> IDLE [label="217 тактів\nrx_sync=1\nхибний старт", constraint=false, color="#C47B28", fontcolor="#A76620"];
+  DATA -> DATA [label="434 такти\nbit_index < 7", headport=e, tailport=e, constraint=false];
+  DATA -> STOP [label="434 такти\nbit_index=7"];
+  STOP -> IDLE [label="434 такти\nrx_sync=1: rx_done=1\nrx_sync=0: framing_error=1", constraint=false, color="#16836E", fontcolor="#16836E"];
+  note [shape=plaintext, fontsize=10, fontcolor="#63758B", label="CLK = 50 МГц · BAUD = 115200 · 2-тактова синхронізація RX · синхронний reset → IDLE"];
+  {rank=sink; note;}
+}

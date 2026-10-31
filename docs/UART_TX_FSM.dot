@@ -1,0 +1,23 @@
+digraph UART_TX_FSM {
+  graph [rankdir=TB, bgcolor="white", pad="0.25", nodesep="0.8", ranksep="1.0", splines=true,
+         fontname="DejaVu Sans", fontsize=20,
+         label="UART TX · FSM передавача (8N1)", labelloc=t, labeljust=l];
+  node [shape=box, style="rounded,filled", fontname="DejaVu Sans", fontsize=13,
+        margin="0.20,0.17", color="#A9BDD2", penwidth=1.4, fillcolor="#F3F7FC", fontcolor="#17304B"];
+  edge [fontname="DejaVu Sans", fontsize=10.5, color="#526A83", fontcolor="#33485E", penwidth=1.55, arrowsize=0.8];
+
+  init [shape=point, width=0.12, color="#53728F", label=""];
+  IDLE  [label="IDLE\nTX=1 · busy=0", fillcolor="#E3F2F0", color="#269785"];
+  START [label="START\nстартовий біт: TX=0"];
+  DATA  [label="DATA\n8 бітів, від LSB до MSB"];
+  STOP  [label="STOP\nстоповий біт: TX=1"];
+
+  init -> IDLE [label="reset"];
+  IDLE -> START [label="tx_start=1\nзафіксувати tx_data"];
+  START -> DATA [label="434 такти\nперший біт"];
+  DATA -> DATA [label="434 такти\nbit_index < 7", headport=e, tailport=e, constraint=false];
+  DATA -> STOP [label="434 такти\nbit_index = 7"];
+  STOP -> IDLE [label="434 такти\ndone=1 (1 такт)", constraint=false, color="#16836E", fontcolor="#16836E"];
+  note [shape=plaintext, fontsize=10, fontcolor="#63758B", label="CLK = 50 МГц · BAUD = 115200 · 434 такти/біт · синхронний reset → IDLE"];
+  {rank=sink; note;}
+}
